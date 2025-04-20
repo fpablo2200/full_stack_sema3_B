@@ -16,9 +16,9 @@ import jakarta.validation.constraints.Positive;
 @AllArgsConstructor
 @NoArgsConstructor 
 @Entity
-@Table(name = "participante")
-public class Participantes {
-
+@Table(name = "entrenador")
+public class Entrenador {
+    
     @Id
     @NotNull(message = "El ID no puede ser nulo")
     @Positive(message = "El ID debe ser positivo")
@@ -26,11 +26,14 @@ public class Participantes {
 
     @NotBlank(message = "El nombre no puede estar vacío")
     @Size(min = 1, max = 100, message = "El nombre debe tener entre 1 y 100 caracteres")
-    private String nombreMascota;
+    private String nombre;
 
-    @NotBlank(message = "El tipo mascota no puede estar vacío")
-    @Size(min = 1, max = 100, message = "El tipo mascota debe tener entre 1 y 100 caracteres")
-    private String tipoMascota;
+    @NotBlank(message = "El dni no puede estar vacío")
+    @Size(min = 1, max = 100, message = "El dni debe tener entre 1 y 100 caracteres")
+    private String dni;
 
-    private int edad;
+    @NotBlank(message = "El correo no puede estar vacío")
+    @Size(min = 1, max = 100, message = "El correo debe tener entre 1 y 100 caracteres")
+    private String correo;
+
 }

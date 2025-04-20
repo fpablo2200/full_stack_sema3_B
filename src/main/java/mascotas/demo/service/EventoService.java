@@ -1,39 +1,54 @@
 package mascotas.demo.service;
-import mascotas.demo.model.Evento;
-import mascotas.demo.model.Inscripcion;
-import mascotas.demo.model.Participantes;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
+import mascotas.demo.model.Evento;
+import mascotas.demo.repository.EventoRepository;
+import mascotas.demo.exception.EventoNotFoundException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EventoService {
-    private final List<Evento> evento = new ArrayList<>();
-    
-    public EventoService(){
-        evento.add(new Evento(1L,"Campeonato 2025", "carrera de obstaculos nacional para mascotas" , 
-            "05/04/2025", "centro recreativo para mascotas" , "Carrera de obstaculos"));
 
-        evento.add(new Evento(2L,"Exhibición Canina", "Exhibiciones de perros" , 
-            "10/05/2025", "centro recreativo para mascotas" ,"Exhibición mascotas"));
+    @Autowired
+    private EventoRepository repositorio;
 
-        evento.add(new Evento(3L,"Exhibición Gatuna", "Exhibiciones de gatos" , 
-            "02/06/2025", "centro recreativo para mascotas" , "Exhibición mascotas"));
-
-        evento.add(new Evento(4L,"Finales 2025 mascotas", "carrera de obstaculos nacional para mascotas" , 
-            "27/07/2025", "centro recreativo para mascotas" , "Carrera de obstaculos"));
-        
-    
-    
+    // listar todo
+    public List<Evento> obtenerEvents() {
+        return repositorio.findAll(Sort.by("id"));
     }
 
-    public List<Evento> obtenerEventos(){
-        return evento;
+    // buscar por id
+    public Evento obtenerEventoId(Long id) {
+        return repositorio.findById(id).orElseThrow(() -> new EventoNotFoundException(id));
     }
 
-    public Optional<Evento> obtenerEventoId(Long id){
-        return evento.stream().filter(p -> p.getId().equals(id)).findFirst();
+    // guardar envio
+    public Evento guardarEvento(Evento evento) {
+        if (repositorio.existsById(evento.getId())) {
+                throw new IllegalArgumentException("Ya existe un registro con el mismo ID" + evento.getId());
+        }
+        return repositorio.save(evento);
     }
+
+    // actualizar por id
+    public Evento actualizarEvento(Long id, Evento eventoAct) {
+        Evento eventoEncontrado = repositorio.findById(id).orElseThrow(() -> new EventoNotFoundException(id));
+
+        eventoEncontrado.setNombreEvento(eventoAct.getNombreEvento());
+        eventoEncontrado.setDescripcion(eventoAct.getDescripcion());
+        eventoEncontrado.setFecha(eventoAct.getFecha());
+        eventoEncontrado.setLugar(eventoAct.getLugar());
+        eventoEncontrado.setTipoevento(eventoAct.getTipoevento());
+
+        return repositorio.save(eventoEncontrado);
+    }
+
+    // eliminar 
+    public void eliminarEvento(Long id) {
+        Evento eventoEncontrado = repositorio.findById(id).orElseThrow(() -> new EventoNotFoundException(id));
+        repositorio.delete(eventoEncontrado);
+    }      
 }

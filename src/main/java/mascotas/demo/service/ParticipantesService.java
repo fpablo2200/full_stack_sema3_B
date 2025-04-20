@@ -1,29 +1,54 @@
 package mascotas.demo.service;
+
 import mascotas.demo.model.Participantes;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import mascotas.demo.repository.ParticipantesRepository;
+import mascotas.demo.exception.ParticipanteNotFoundException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ParticipantesService {
-    private final List<Participantes> participantes = new ArrayList<>();
-    
-    public ParticipantesService(){
-        participantes.add(new Participantes(1L,"Duque", "Perro" , 3, "Oscar Antonio"));
-        participantes.add(new Participantes(2L,"MaoMao", "Gato" , 4, "Miranda Barros"));
-        participantes.add(new Participantes(3L,"Henrique", "Perro" , 4, "Hector Olguin"));
-        participantes.add(new Participantes(4L,"Miguel", "Perro" , 8, "Felipa Acosta"));
-        participantes.add(new Participantes(5L,"Negro", "Gato" , 10, "Julieta Herrera"));
-    
+
+    @Autowired
+    private ParticipantesRepository repositorio;
+
+    // listar todo
+    public List<Participantes> obtenerParticipantes() {
+        return repositorio.findAll(Sort.by("id"));
     }
 
-    public List<Participantes> obtenerParticipantes(){
-        return participantes;
+    // buscar por id
+    public Participantes obtenerParticipanteId(Long id) {
+        return repositorio.findById(id).orElseThrow(() -> new ParticipanteNotFoundException(id));
     }
 
-    public Optional<Participantes> obtenerParticipanteId(Long id){
-        return participantes.stream().filter(p -> p.getId().equals(id)).findFirst();
+    // guardar 
+    public Participantes guardarParticipante(Participantes participante) {
+        if (repositorio.existsById(participante.getId())) {
+                throw new IllegalArgumentException("Ya existe un registro con el mismo ID" + participante.getId());
+        }
+        return repositorio.save(participante);
     }
+
+    // actualizar por id
+    public Participantes actualizarParticipante(Long id, Participantes participanteAct) {
+        Participantes participanteEncontrado = repositorio.findById(id).orElseThrow(() -> new ParticipanteNotFoundException(id));
+
+        participanteEncontrado.setNombreMascota(participanteAct.getNombreMascota());
+        participanteEncontrado.setTipoMascota(participanteAct.getTipoMascota());
+        participanteEncontrado.setEdad(participanteAct.getEdad());
+
+        return repositorio.save(participanteEncontrado);
+    }
+
+    // eliminar
+    public void eliminarParticipante(Long id) {
+        Participantes participanteEncontrado = repositorio.findById(id).orElseThrow(() -> new ParticipanteNotFoundException(id));
+        repositorio.delete(participanteEncontrado);
+    }     
     
 }
